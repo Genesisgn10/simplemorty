@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.genesis.simplemorty.databinding.ActivityMainBinding
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -32,39 +33,56 @@ class MainActivity : AppCompatActivity() {
         val rickAndMortyService: RickAndMortyService =
             retrofit.create(RickAndMortyService::class.java)
 
-        rickAndMortyService.getCharacterById(10).enqueue(object : Callback<GetCharacterByIdResponse> {
-            override fun onResponse(
-                call: Call<GetCharacterByIdResponse>,
-                response: Response<GetCharacterByIdResponse>
-            ) {
-                Log.i("MainActivity", response.toString())
-                when (response.isSuccessful) {
-                    true -> {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Unsuccessful network call!!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+        rickAndMortyService.getCharacterById(765)
+            .enqueue(object : Callback<GetCharacterByIdResponse> {
+                override fun onResponse(
+                    call: Call<GetCharacterByIdResponse>,
+                    response: Response<GetCharacterByIdResponse>
+                ) {
+                    Log.i("MainActivity", response.toString())
+                    when (response.isSuccessful) {
+                        true -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Unsuccessful network call!!",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
-                        val body = response.body()
-                        val name = body?.name
-                        binding?.name?.text = name
+                            val body = response.body()!!
+
+                            binding?.run {
+                                nameTextView.text = body.name
+                                aliveTextView.text = body.status
+                                speciesTextView.text = body.species
+                                originTextView.text = body.origin.name
+
+                                when (body.gender.equals("male", true)) {
+                                    true -> {
+                                        genderImageView.setImageResource(R.drawable.ic_male_24)
+                                    }
+                                    false -> {
+                                        genderImageView.setImageResource(R.drawable.ic_famale_24)
+                                    }
+                                }
+
+                                Picasso.get().load(body.image).into(headerImageView)
+                            }
+                        }
+                        false -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Unsuccessful network call!!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return
+                        }
                     }
-                    false -> {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Unsuccessful network call!!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return
-                    }
+
                 }
 
-            }
-
-            override fun onFailure(call: Call<GetCharacterByIdResponse>, t: Throwable) {
-                Log.i("MainActivity", t.message ?: "Null message")
-            }
-        })
+                override fun onFailure(call: Call<GetCharacterByIdResponse>, t: Throwable) {
+                    Log.i("MainActivity", t.message ?: "Null message")
+                }
+            })
     }
 }
