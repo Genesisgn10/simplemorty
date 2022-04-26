@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Simplemorty</string>
+    <string name="full_name">Full Name</string>
+    <string name="origin">Origin</string>
+    <string name="eartn">Eartn</string>
+    <string name="species">Species</string>
 </resources>
